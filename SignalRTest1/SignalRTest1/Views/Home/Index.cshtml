@@ -1,0 +1,63 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>ASP.NET</h1>
+    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+<div class="row">
+    <h2>Chat</h2>
+
+    <label for="room">Room:</label> <input type="text" id="room" />
+    <input type="button" id="join" value="Join" />
+
+    <label for="message">Message:</label> <input type="text" id="message" />
+    <div>
+        <input type="button" id="send" value="Send message" />
+        <input type="button" id="sendprivate" value="Send message to" />
+    </div>
+
+    <div class="container">
+        <ul id="messages">
+
+        </ul>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        var chat;
+
+        $(function () {
+            $.connection.hub.logging = true;
+            chat = $.connection.chat;   // Name del hub con camel case
+            chat.client.newMessage = onNewMessage;
+            // Hook the events
+            //$.connection.hub.start();   // Starts negotiation context
+            $('#join').click(onJoin);
+            $('#send').click(onSend);
+            $('#sendprivate').click(onSendPrivate);
+            $.connection.hub.start({ transport: 'longPolling' });   // Starts negotiation context
+        })
+
+        function onNewMessage(message) {
+            // ... validation!!!
+            $('#messages').append('<li>' + message + '</li>');
+        }
+
+        function onJoin() {
+            chat.server.joinRoom($('#room').val());
+        }
+
+        function onSend() {
+            chat.server.sendMessage($('#message').val());
+        }
+
+        function onSendPrivate() {
+            chat.server.sendMessageForRoom($('#room').val(), $('#message').val());
+        }
+    </script>
+}
